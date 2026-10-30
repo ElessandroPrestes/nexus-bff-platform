@@ -28,3 +28,17 @@ Thumbs.db
 # Coverage / reports
 coverage/
 *.lcov
+
+
+
+.nx/cache
+.nx/workspace-data
+.nx/migrate-runs
+.nx/polygraph
+.claude/worktrees
+.claude/settings.local.json
+.angular
+.opencode/
+opencode.json
+
+__screenshots__/

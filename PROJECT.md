@@ -6,10 +6,10 @@
 
 | Campo | Valor |
 | --- | --- |
-| Nome | Nexus BFF Platform |
+| Nome | Nexus Core (Nexus BFF Platform) |
 | Repositório | `nexus-bff-platform` |
-| Tipo | Backend For Frontend (BFF) / plataforma de agregação de APIs |
-| Status | Bootstrapping (framework instalado, produto em discovery) |
+| Tipo | Monorepo full-stack: BFF, worker assíncrono e frontend Angular |
+| Status | TASK-001 (Fase 1) concluída — Fase 2 pendente |
 | Versão do framework | Universal SDD pré-1.0 |
 | Licença | A definir |
 
@@ -23,14 +23,19 @@ Fornecer uma camada BFF que agrega, orquestra e adapta APIs de backend para cons
 
 | Item | Valor |
 | --- | --- |
-| Linguagem | A definir (pendente de decisão arquitetural) |
-| Framework | A definir |
-| Arquitetura | A definir (candidata: BFF em camadas com adaptadores de integração) |
-| Persistência | A definir |
-| Mensageria | A definir |
-| Observabilidade | A definir |
+| Linguagem | TypeScript 6 |
+| Monorepo | Nx 24 + pnpm 9 (ADR-0001) |
+| Runtime | Node.js 24 |
+| Frontend | Angular 22 (standalone, signals) |
+| Backend/BFF | NestJS 11 |
+| Worker | NestJS 11 microservices (RabbitMQ) |
+| Persistência | MongoDB 7 |
+| Cache | Redis 7 |
+| Mensageria | RabbitMQ 3 |
+| Servidor estático | Nginx 1.27 |
+| Observabilidade | `LoggingInterceptor` estruturado (latência/auditoria) — Fase 3 |
 
-> Decisões arquiteturais devem ser registradas como ADRs em `adr/` **antes** da implementação. Ver `docs/architecture.md`.
+> Decisões em `adr/ADR-0001`, `ADR-0002` e `ADR-0003`.
 
 ## 4. Estrutura do Repositório
 
@@ -41,6 +46,13 @@ Fornecer uma camada BFF que agrega, orquestra e adapta APIs de backend para cons
 ├── AGENTS.md
 ├── CLAUDE.md / GEMINI.md / COPILOT.md
 ├── UNIVERSAL_SDD_FRAMEWORK.md
+├── .github/workflows/ci.yml     # CI: lint + test + build
+├── apps/
+│   ├── api-bff/                 # NestJS BFF (helmet, throttler, validation pipe)
+│   ├── ms-cobranca/             # NestJS worker (RabbitMQ — Fase 4)
+│   └── frontend-angular/        # Angular 22 standalone
+├── libs/
+│   └── common/                  # Contratos compartilhados (Fase 2)
 ├── agents/        # papéis e limites
 ├── workflows/     # fluxos oficiais
 ├── profiles/      # perfis de configuração por stack/contexto
@@ -58,30 +70,45 @@ Fornecer uma camada BFF que agrega, orquestra e adapta APIs de backend para cons
 
 - [x] Framework Universal SDD instalado.
 - [x] Documentação base criada.
-- [ ] Discovery de produto e UX concluído.
-- [ ] Arquitetura definida (ADRs).
-- [ ] Design aprovado.
-- [ ] Primeira SPEC aprovada.
-- [ ] Primeira TASK implementada.
-- [ ] Quality gates automatizados configurados.
-- [ ] CI/CD configurado.
+- [x] Discovery de produto e UX (requisitos do Nexus Core fornecidos).
+- [x] Arquitetura proposta em ADR-0001/0002/0003.
+- [x] SPEC-001 (Nexus Core) redigida e aprovada (Elessandro, 2026-10-29).
+- [x] TASK-001 (Fase 1) implementada e concluída.
+  - [x] Monorepo Nx 24 + pnpm 9 inicializado.
+  - [x] Projetos `api-bff`, `ms-cobranca`, `frontend-angular`, `common` criados.
+  - [x] `helmet`, `ThrottlerModule`, `ValidationPipe` global configurados no BFF.
+  - [x] Dependências de segurança/JWT instaladas.
+  - [x] ESLint + Prettier configurados.
+  - [x] `lint`, `test`, `build` verdes (4/4 projetos).
+  - [x] CI básico criado (`.github/workflows/ci.yml`).
+- [ ] TASK-002 (Fase 2 — `libs/common`): pendente.
+- [ ] TASK-003 (Fase 3 — BFF SOLID): pendente.
+- [ ] TASK-004 (Fase 4 — ms-cobranca): pendente.
+- [ ] TASK-005 (Fase 5 — Frontend Angular): pendente.
+- [ ] TASK-006 (Fase 6 — Docker, K8s, CI/CD completo): pendente.
+- [ ] TASK-007 (Fase 7 — Testes e Documentação): pendente.
 
 ## 6. Convenções
 
 - Commits seguem o padrão definido em `CONTRIBUTING.md`.
 - Branches: `main` (estável), `develop` (integração), `feature/*`, `fix/*`, `chore/*`.
 - Toda mudança relevante referencia uma SPEC e/ou ADR.
+- Scripts raiz usam `--exclude=nexus-core` para evitar loop recursivo no Nx.
 
 ## 7. Dívidas e Pendências Conhecidas
 
 | ID | Descrição | Impacto | Dono |
 | --- | --- | --- | --- |
-| D-001 | Stack tecnológica não definida | Bloqueia implementação | Arquitetura |
-| D-002 | Escopo funcional do BFF não aprovado | Bloqueia SPECs | Produto |
+| D-001 | Review formal da TASK-001 pendente | Baixo — pode ser feito na Fase 2 | Arquitetura |
+| D-002 | Schema de Acordo e regras de negócio pendentes | Limita Fases 2–4 | Produto |
 | D-003 | Licença não definida | Bloqueia release público | Mantenedores |
+| D-004 | Provedor JWT, registry de imagens e cluster K8s pendentes | Limita Fases 3 e 6 | Arquitetura/DevOps |
+| D-005 | Warning de budget Angular no `nx-welcome.ts` | Nenhum — componente scaffold | Frontend (Fase 5) |
 
 ## 8. Histórico de Atualizações
 
 | Data | Mudança | Autor |
 | --- | --- | --- |
 | 2026-10-29 | Bootstrap do framework Universal SDD | — |
+| 2026-10-29 | SPEC-001, ADR-0001/0002/0003 e TASK-001 redigidos | Agente |
+| 2026-10-30 | TASK-001 (Fase 1) concluída: monorepo, segurança base, CI | Agente |
