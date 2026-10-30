@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build
+dist/
+build/
+out/
+target/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Logs
+*.log
+logs/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Coverage / reports
+coverage/
+*.lcov
