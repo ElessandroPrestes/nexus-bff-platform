@@ -28,6 +28,10 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e
 - Violação de CSP no frontend causada pelo script inline de CSS crítico do
   beasties; build agora usa `inlineCritical: false` e mantém `script-src 'self'`
   (SPEC-004, ADR-0004, TASK-010).
+- 404 de chunks e falha de import dinâmico após deploy: `index.html` e rotas
+  SPA agora usam `Cache-Control: no-store` e assets com hash usam
+  `immutable`; headers de segurança passam a ser herdados em JS/CSS
+  (SPEC-006, TASK-012).
 
 ## [0.1.0] - 2026-10-29
 

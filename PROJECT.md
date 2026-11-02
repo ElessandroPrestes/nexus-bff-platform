@@ -159,6 +159,12 @@ Fornecer uma camada BFF que agrega, orquestra e adapta APIs de backend para cons
   - [x] Login split-screen com token monoespaçado, “Colar”, visibilidade e loading.
   - [x] Toasts com ícone/progresso, skeletons e empty states.
   - [x] Gates: lint/test(51)/build 4/4 ✅. Review em REV-002 (validação humana em D-013).
+- [x] TASK-012 (SPEC-006 — cache do frontend): concluída.
+  - [x] `index.html` e rotas SPA com `Cache-Control: no-store`.
+  - [x] Assets com hash com `Cache-Control: public, max-age=31536000, immutable`.
+  - [x] Headers de segurança preservados em HTML e assets (herança do `server`).
+  - [x] Login JWT e navegação sem 404 de chunks após rebuild/recreate.
+  - [x] Gates: lint/test(51)/build 4/4 ✅. Review em REV-003 (validação humana em D-014).
 
 ## 6. Convenções
 
@@ -184,6 +190,7 @@ Fornecer uma camada BFF que agrega, orquestra e adapta APIs de backend para cons
 | D-011 | Review formal de TASK-006 pendente (gate G6)              | Baixo — não bloqueia Fase 7      | Arquitetura        |
 | D-012 | Review formal de TASK-010 pendente (gate G6)              | Baixo — correção validada em auto-revisão (REV-001) | Arquitetura |
 | D-013 | Review formal de TASK-011 pendente (gate G6)              | Baixo — redesign validado em auto-revisão (REV-002) | Arquitetura |
+| D-014 | Review formal de TASK-012 pendente (gate G6)              | Baixo — correção validada em auto-revisão (REV-003) | Arquitetura |
 
 ## 8. Histórico de Atualizações
 
@@ -202,3 +209,4 @@ Fornecer uma camada BFF que agrega, orquestra e adapta APIs de backend para cons
 | 2026-11-01 | TASK-009 (D-009) concluída: Tailwind v4, redesign de todos os componentes, dark mode e a11y; gates lint/test(25)/build ✅ | Agente |
 | 2026-11-01 | TASK-010 concluída: CSP do frontend corrigido (inlineCritical=false), CI verifica scripts inline; gates lint/test/build ✅ | Agente |
 | 2026-11-02 | TASK-011 concluída: redesign premium P0+P1 (shell, dashboard, toolbar, modal, form, login, toasts); gates lint/test(51)/build ✅ | Agente |
+| 2026-11-02 | TASK-012 concluída: cache do index.html corrigido (no-store), assets immutable e headers preservados; 404 de chunks eliminado | Agente |
