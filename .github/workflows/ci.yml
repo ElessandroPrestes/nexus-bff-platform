@@ -12,6 +12,10 @@ on:
     branches:
       - develop
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -50,3 +54,72 @@ jobs:
 
       - name: Build
         run: pnpm nx run-many -t build --exclude=nexus-core --output-style=static
+
+      - name: Verificar CSP do frontend (sem scripts inline)
+        run: |
+          node -e "const fs=require('fs');const file='dist/apps/frontend-angular/browser/index.html';const html=fs.readFileSync(file,'utf8');const inline=[...html.matchAll(/<script(?![^>]*\\bsrc=)[^>]*>/gi)];if(inline.length){console.error('Scripts inline encontrados no index.html:',inline.length);process.exit(1)}console.log('OK: nenhum script inline no index.html')"
+
+  imagens:
+    name: Imagem ${{ matrix.app }}
+    runs-on: ubuntu-latest
+    needs: ci
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: api-bff
+            image: api-bff
+          - app: ms-cobranca
+            image: ms-cobranca
+          - app: frontend-angular
+            image: frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login no GHCR
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build e push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/${{ matrix.app }}/Dockerfile
+          push: ${{ github.event_name == 'push' }}
+          tags: |
+            ghcr.io/${{ github.repository }}/${{ matrix.image }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}/${{ matrix.image }}:latest
+          cache-from: type=gha,scope=${{ matrix.app }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.app }}
+
+  manifestos:
+    name: Validar Compose e Kubernetes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validar Docker Compose
+        run: docker compose config --quiet
+
+      - name: Instalar kubeconform
+        run: |
+          curl -sSLo kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz
+          tar -xzf kubeconform.tar.gz kubeconform
+          sudo mv kubeconform /usr/local/bin/kubeconform
+
+      - name: Validar manifestos Kubernetes
+        run: kubeconform -strict -summary -ignore-missing-schemas k8s

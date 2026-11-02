@@ -8,8 +8,10 @@
   "include": [
     "jest.config.ts",
     "jest.config.cts",
+    "jest.config.e2e.cts",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "test/**/*.e2e-spec.ts"
   ]
 }

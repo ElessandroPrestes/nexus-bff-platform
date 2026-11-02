@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AcordosModule } from '../acordos/acordos.module';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -8,6 +9,8 @@ import { JwtAuthModule } from '../auth/jwt-auth.module';
 import { LoggingInterceptor } from '../common/interceptors/logging.interceptor';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+
+const MONGODB_URI = process.env['MONGODB_URI'] ?? 'mongodb://localhost:27017/nexus';
 
 /**
  * AppModule — módulo raiz do BFF.
@@ -19,9 +22,18 @@ import { AppService } from './app.service';
  *
  * Interceptor global:
  *  - LoggingInterceptor — latência + auditoria estruturada (OWASP A09).
+ *
+ * Persistência:
+ *  - MongooseModule.forRoot conecta ao MongoDB via MONGODB_URI (env).
+ *    Fallback para localhost em desenvolvimento local sem Docker.
  */
 @Module({
   imports: [
+    MongooseModule.forRoot(MONGODB_URI, {
+      serverSelectionTimeoutMS: Number(
+        process.env['MONGODB_SERVER_SELECTION_TIMEOUT_MS'] ?? 5000,
+      ),
+    }),
     ThrottlerModule.forRoot([
       {
         name: 'default',

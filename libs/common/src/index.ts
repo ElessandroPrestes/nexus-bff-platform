@@ -11,3 +11,6 @@ export * from './lib/interfaces';
 
 // DTOs
 export * from './lib/dtos';
+
+// Constants
+export * from './lib/constants';

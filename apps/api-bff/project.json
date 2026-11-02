@@ -78,6 +78,19 @@
       "options": {
         "passWithNoTests": true
       }
+    },
+    "e2e": {
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{workspaceRoot}/coverage/apps/api-bff-e2e"
+      ],
+      "options": {
+        "cwd": "apps/api-bff",
+        "command": "jest --config jest.config.e2e.cts",
+        "env": {
+          "TS_NODE_COMPILER_OPTIONS": "{\"moduleResolution\":\"node10\",\"module\":\"commonjs\",\"customConditions\":null}"
+        }
+      }
     }
   }
 }

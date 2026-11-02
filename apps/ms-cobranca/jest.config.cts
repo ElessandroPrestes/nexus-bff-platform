@@ -2,6 +2,7 @@ module.exports = {
   displayName: 'ms-cobranca',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
+  setupFiles: ['reflect-metadata'],
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }]
   },

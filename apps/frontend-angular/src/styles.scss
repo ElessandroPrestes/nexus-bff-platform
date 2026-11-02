@@ -1,1 +1,198 @@
-/* You can add global styles to this file, and also import other style files */
+@use 'tailwindcss';
+@config '../tailwind.config.js';
+
+@source './app';
+@source './index.html';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme inline {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+
+  --color-brand: var(--nx-brand);
+  --color-brand-contrast: var(--nx-brand-contrast);
+  --color-surface: var(--nx-surface);
+  --color-bg: var(--nx-bg);
+  --color-text: var(--nx-text);
+  --color-muted: var(--nx-muted);
+  --color-border: var(--nx-border);
+  --color-danger: var(--nx-danger);
+  --color-success: var(--nx-success);
+  --color-focus: var(--nx-focus);
+}
+
+:root {
+  color-scheme: light;
+
+  --nx-brand: #1d4ed8;
+  --nx-brand-contrast: #ffffff;
+  --nx-bg: #f1f5f9;
+  --nx-surface: #ffffff;
+  --nx-text: #0f172a;
+  --nx-muted: #64748b;
+  --nx-border: #e2e8f0;
+  --nx-danger: #dc2626;
+  --nx-success: #16a34a;
+  --nx-focus: #1d4ed8;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --nx-brand: #60a5fa;
+  --nx-brand-contrast: #0f172a;
+  --nx-bg: #0f172a;
+  --nx-surface: #1e293b;
+  --nx-text: #f1f5f9;
+  --nx-muted: #94a3b8;
+  --nx-border: #334155;
+  --nx-danger: #f87171;
+  --nx-success: #4ade80;
+  --nx-focus: #60a5fa;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--nx-bg);
+    color: var(--nx-text);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--nx-focus);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .skip-link {
+    @apply absolute top-0 left-0 z-50 -translate-y-full rounded-br-lg bg-surface px-4 py-3 font-semibold text-text shadow-lg transition-transform;
+  }
+
+  .skip-link:focus {
+    @apply translate-y-0;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-current/25 ring-inset;
+  }
+
+  .toast-item {
+    animation: toast-in 0.18s ease-out;
+  }
+
+  .toast-progress {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 3px;
+    background-color: var(--nx-brand);
+    transform-origin: left;
+    animation: toast-progress 5s linear forwards;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@media (max-width: 40rem) {
+  .tabela-wrapper {
+    overflow-x: visible;
+  }
+
+  .tabela,
+  .tabela thead,
+  .tabela tbody,
+  .tabela tr,
+  .tabela th,
+  .tabela td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .tabela thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .tabela tr {
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    border: 1px solid var(--nx-border);
+    border-radius: 0.75rem;
+  }
+
+  .tabela td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem;
+    border-bottom: 0;
+  }
+
+  .tabela td::before {
+    content: attr(data-rotulo);
+    font-weight: 600;
+    color: var(--nx-muted);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

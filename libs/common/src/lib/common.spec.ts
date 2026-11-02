@@ -6,6 +6,7 @@ import { TipoPagamento } from '../lib/enums/tipo-pagamento.enum';
 import { CreateAcordoDto } from '../lib/dtos/create-acordo.dto';
 import { UpdateAcordoDto } from '../lib/dtos/update-acordo.dto';
 import { AcordoResponseDto } from '../lib/dtos/acordo-response.dto';
+import { CobrancaEventoDto } from '../lib/dtos/cobranca-evento.dto';
 import type { IAcordo } from '../lib/interfaces/acordo.interface';
 import type { IPaginatedResult } from '../lib/interfaces/paginated-result.interface';
 import type { IApiResponse } from '../lib/interfaces/api-response.interface';
@@ -152,6 +153,52 @@ describe('CreateAcordoDto', () => {
     const errors = await validateDto({ ...buildValidPayload(), credorId: '' });
     const props = errors.map((e) => e.property);
     expect(props).toContain('credorId');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// CobrancaEventoDto — evento assíncrono
+// ---------------------------------------------------------------------------
+
+describe('CobrancaEventoDto', () => {
+  function buildValidEvento(): object {
+    return {
+      eventoId: 'evt-1',
+      ocorridoEm: '2026-10-31T12:00:00.000Z',
+      acordo: buildValidPayload(),
+    };
+  }
+
+  async function validateEvento(payload: object) {
+    const dto = plainToInstance(CobrancaEventoDto, payload);
+    return validate(dto);
+  }
+
+  it('deve passar com payload válido', async () => {
+    const errors = await validateEvento(buildValidEvento());
+    expect(errors).toHaveLength(0);
+  });
+
+  it('deve rejeitar eventoId vazio', async () => {
+    const errors = await validateEvento({ ...buildValidEvento(), eventoId: '' });
+    expect(errors.map((e) => e.property)).toContain('eventoId');
+  });
+
+  it('deve rejeitar ocorridoEm inválido', async () => {
+    const errors = await validateEvento({
+      ...buildValidEvento(),
+      ocorridoEm: 'nao-e-data',
+    });
+    expect(errors.map((e) => e.property)).toContain('ocorridoEm');
+  });
+
+  it('deve validar o acordo aninhado', async () => {
+    const errors = await validateEvento({
+      ...buildValidEvento(),
+      acordo: { ...buildValidPayload(), valorEmCentavos: 0 },
+    });
+    const acordoError = errors.find((e) => e.property === 'acordo');
+    expect(acordoError?.children?.map((c) => c.property)).toContain('valorEmCentavos');
   });
 });
 
