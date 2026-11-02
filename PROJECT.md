@@ -9,9 +9,9 @@
 | Nome                | Nexus Core (Nexus BFF Platform)                                |
 | Repositório         | `nexus-bff-platform`                                           |
 | Tipo                | Monorepo full-stack: BFF, worker assíncrono e frontend Angular |
-| Status              | TASK-011 concluída — redesign premium do frontend (P0 + P1) |
+| Status              | TASK-012 concluída — cache do frontend corrigido; licença MIT definida |
 | Versão do framework | Universal SDD pré-1.0                                          |
-| Licença             | A definir                                                      |
+| Licença             | MIT (ADR-0005)                                                 |
 
 ## 2. Objetivo
 
@@ -179,7 +179,7 @@ Fornecer uma camada BFF que agrega, orquestra e adapta APIs de backend para cons
 | ----- | --------------------------------------------------------- | -------------------------------- | ------------------ |
 | D-001 | Review formal da TASK-001 pendente                        | Baixo — pode ser feito na Fase 2 | Arquitetura        |
 | D-002 | Schema de Acordo e regras de negócio pendentes            | Limita Fases 2–4                 | Produto            |
-| D-003 | Licença não definida                                      | Bloqueia release público         | Mantenedores       |
+| D-003 | ~~Licença não definida~~ — **Resolvida em ADR-0005 (MIT)** | Resolvido | Mantenedores |
 | D-004 | Provedor JWT, registry de imagens e cluster K8s pendentes | Fase 6 entregue com GHCR provisório; cluster K8s e registry definitivos ainda abertos | Arquitetura/DevOps |
 | D-005 | Warning de budget Angular no `nx-welcome.ts`              | Resolvido em TASK-005 (scaffold removido) | Frontend   |
 | D-006 | Review formal de TASK-002 e TASK-003 pendente (gate G6)   | Baixo — não bloqueia Fase 4      | Arquitetura        |
@@ -210,3 +210,4 @@ Fornecer uma camada BFF que agrega, orquestra e adapta APIs de backend para cons
 | 2026-11-01 | TASK-010 concluída: CSP do frontend corrigido (inlineCritical=false), CI verifica scripts inline; gates lint/test/build ✅ | Agente |
 | 2026-11-02 | TASK-011 concluída: redesign premium P0+P1 (shell, dashboard, toolbar, modal, form, login, toasts); gates lint/test(51)/build ✅ | Agente |
 | 2026-11-02 | TASK-012 concluída: cache do index.html corrigido (no-store), assets immutable e headers preservados; 404 de chunks eliminado | Agente |
+| 2026-11-02 | D-003 resolvido: licença MIT (ADR-0005), LICENSE e package.json atualizados | Agente |

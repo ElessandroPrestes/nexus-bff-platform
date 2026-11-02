@@ -19,6 +19,7 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e
 - Formulário em seções com máscara monetária, labels humanos e barra de ações sticky (TASK-011).
 - Login split-screen com token monoespaçado, “Colar”, alternância de visibilidade e estado de loading (TASK-011).
 - Toasts com ícone e barra de progresso; skeletons e empty states (TASK-011).
+- Licença MIT com copyright de Elessandro Prestes (`LICENSE`, ADR-0005), resolvendo D-003.
 
 ### Changed
 - Remoção de acordo passou de `window.confirm` para modal acessível com foco gerenciado (TASK-011).

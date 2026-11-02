@@ -253,4 +253,5 @@ Universal SDD: discovery → SPEC aprovada → TASK → implementação → QA �
 
 ## Licença
 
-A definir (ver D-003 em `PROJECT.md`).
+Distribuído sob a licença **MIT**. Consulte [`LICENSE`](LICENSE) para o texto
+completo. Copyright (c) 2026 Elessandro Prestes.

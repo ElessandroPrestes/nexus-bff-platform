@@ -2,7 +2,7 @@
   "name": "nexus-core",
   "version": "0.1.0",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "packageManager": "pnpm@9.0.0",
   "scripts": {
     "start": "nx serve api-bff",
