@@ -1,0 +1,177 @@
+name: ${COMPOSE_PROJECT_NAME:-nexus}
+
+services:
+  mongo:
+    image: mongo:7.0
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-nexus}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-nexus}
+    ports:
+      - '${MONGO_PORT:-5401}:27017'
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'mongosh --quiet -u "$$MONGO_INITDB_ROOT_USERNAME" -p "$$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "db.adminCommand({ping:1}).ok" | grep -q 1',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - nexus
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '${REDIS_PORT:-8201}:6379'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks:
+      - nexus
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-nexus}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-nexus}
+    ports:
+      - '${RABBITMQ_PORT:-8200}:5672'
+      - '${RABBITMQ_MGMT_PORT:-8202}:15672'
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    networks:
+      - nexus
+
+  bff:
+    build:
+      context: .
+      dockerfile: apps/api-bff/Dockerfile
+    image: nexus/api-bff:local
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      NODE_ENV: production
+      PORT: '3000'
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5216}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      JWT_ISSUER: ${JWT_ISSUER:-nexus-core}
+      MONGODB_URI: mongodb://${MONGO_ROOT_USER:-nexus}:${MONGO_ROOT_PASSWORD:-nexus}@mongo:27017/nexus?authSource=admin
+      MONGODB_SERVER_SELECTION_TIMEOUT_MS: '5000'
+    ports:
+      - '${API_PORT:-3200}:3000'
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3000/api']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - nexus
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/ms-cobranca/Dockerfile
+    image: nexus/ms-cobranca:local
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      NODE_ENV: production
+      MS_COBRANCA_PORT: '3201'
+      MONGODB_URI: mongodb://${MONGO_ROOT_USER:-nexus}:${MONGO_ROOT_PASSWORD:-nexus}@mongo:27017/nexus?authSource=admin
+      MONGODB_SERVER_SELECTION_TIMEOUT_MS: ${MONGODB_SERVER_SELECTION_TIMEOUT_MS:-5000}
+      RABBITMQ_URL: amqp://${RABBITMQ_DEFAULT_USER:-nexus}:${RABBITMQ_DEFAULT_PASS:-nexus}@rabbitmq:5672
+      RABBITMQ_QUEUE: ${RABBITMQ_QUEUE:-cobranca.acordos}
+      RABBITMQ_PREFETCH: ${RABBITMQ_PREFETCH:-10}
+      COBRANCA_RETRY_ATTEMPTS: ${COBRANCA_RETRY_ATTEMPTS:-3}
+      COBRANCA_RETRY_BASE_DELAY_MS: ${COBRANCA_RETRY_BASE_DELAY_MS:-200}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3201/api']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - nexus
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend-angular/Dockerfile
+    image: nexus/frontend-angular:local
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    ports:
+      - '${FRONTEND_PORT:-5216}:8080'
+    depends_on:
+      bff:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:8080/healthz']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - nexus
+
+networks:
+  nexus:
+    name: ${COMPOSE_PROJECT_NAME:-nexus}
+
+volumes:
+  mongo-data:
+  redis-data:
+  rabbitmq-data:

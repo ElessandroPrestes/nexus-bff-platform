@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nexus-config
+  namespace: nexus
+  labels:
+    app.kubernetes.io/part-of: nexus-core
+data:
+  NODE_ENV: production
+  PORT: '3000'
+  CORS_ORIGIN: https://nexus.example.com
+  JWT_EXPIRES_IN: 15m
+  JWT_ISSUER: nexus-core
+  RABBITMQ_QUEUE: cobranca.acordos
+  RABBITMQ_PREFETCH: '10'
+  MS_COBRANCA_PORT: '3201'
+  COBRANCA_RETRY_ATTEMPTS: '3'
+  COBRANCA_RETRY_BASE_DELAY_MS: '200'
+  MONGODB_SERVER_SELECTION_TIMEOUT_MS: '5000'
+  REDIS_URL: redis://redis:6379
