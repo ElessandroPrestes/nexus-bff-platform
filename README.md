@@ -102,6 +102,28 @@ docker compose down -v
 
 ---
 
+## Login de desenvolvimento (token padrão)
+
+Para testar a interface sem configurar um provedor de identidade, use o token
+abaixo. Ele é assinado com o `JWT_SECRET` padrão do `.env.example`
+(`change-me-in-production`) e tem validade de **1 ano** (até 2027-11-02).
+
+```text
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZXYiLCJlbWFpbCI6ImRldkBuZXh1cy5sb2NhbCIsInJvbGVzIjpbImFkbWluIl0sImlhdCI6MTc5MzYyMjk4OSwiZXhwIjoxODI1MTU4OTg5LCJpc3MiOiJuZXh1cy1jb3JlIn0.HDJfaIDB8SK6qyQQk3XtFFtu35CRZFHZ5BRcsPxxDCs
+```
+
+1. Abra http://localhost:5216/login.
+2. Cole o token no campo e clique em **Entrar**.
+
+> **Somente desenvolvimento local.** Esse token concede papel `admin` e não
+> deve ser usado em produção. Se você alterar `JWT_SECRET`, gere outro token:
+
+```bash
+node -e "const {JwtService}=require('@nestjs/jwt');const s=new JwtService({secret:process.env.JWT_SECRET||'change-me-in-production'});console.log(s.sign({sub:'dev',email:'dev@nexus.local',roles:['admin']},{expiresIn:'365d',issuer:'nexus-core'}))"
+```
+
+---
+
 ## Scripts raiz (Nx)
 
 ```bash
